@@ -44,13 +44,14 @@ function BookingModal({close,selectedRoom}:{close:()=>void;selectedRoom?:string}
 
 export default function App(){
  const [menu,setMenu]=useState(false),[booking,setBooking]=useState(false),[selected,setSelected]=useState<any|null>(null),[lang,setLang]=useState<'ar'|'en'>('ar'),[faq,setFaq]=useState(-1);
- const [remoteRooms,setRemoteRooms]=useState<any[]|null>(null),[remoteServices,setRemoteServices]=useState<any[]|null>(null),[remoteFaqs,setRemoteFaqs]=useState<any[]|null>(null),[settings,setSettings]=useState<any>(null);
- useEffect(()=>{let active=true;(async()=>{const [r,s,f,st]=await Promise.all([supabase.from('pano_rooms').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_services').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_faqs').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_site_settings').select('*').eq('id',true).single()]);if(!active)return;if(!r.error&&r.data?.length)setRemoteRooms(r.data);if(!s.error&&s.data?.length)setRemoteServices(s.data);if(!f.error&&f.data?.length)setRemoteFaqs(f.data);if(!st.error&&st.data)setSettings(st.data)})();return()=>{active=false}},[]);
+ const [remoteRooms,setRemoteRooms]=useState<any[]|null>(null),[remoteServices,setRemoteServices]=useState<any[]|null>(null),[remoteFaqs,setRemoteFaqs]=useState<any[]|null>(null),[remoteGallery,setRemoteGallery]=useState<any[]|null>(null),[remoteOffers,setRemoteOffers]=useState<any[]|null>(null),[settings,setSettings]=useState<any>(null);
+ useEffect(()=>{let active=true;(async()=>{const [r,s,f,g,o,st]=await Promise.all([supabase.from('pano_rooms').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_services').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_faqs').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_gallery').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_offers').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_site_settings').select('*').eq('id',true).single()]);if(!active)return;if(!r.error&&r.data?.length)setRemoteRooms(r.data);if(!s.error&&s.data?.length)setRemoteServices(s.data);if(!f.error&&f.data?.length)setRemoteFaqs(f.data);if(!g.error&&g.data?.length)setRemoteGallery(g.data);if(!o.error&&o.data?.length)setRemoteOffers(o.data);if(!st.error&&st.data)setSettings(st.data)})();return()=>{active=false}},[]);
  const displayRooms=remoteRooms?.map(r=>({name:r.name_ar,en:r.name_en,tag:r.tag,meta:r.meta_ar,features:r.features_ar||[],image:r.image_url}))||rooms;
  const displayServices=remoteServices?.map(s=>[s.title_ar,s.subtitle_ar,s.description_ar,s.icon] as any[])||services;
- const displayFaqs=remoteFaqs?.map(f=>f.question_ar)||['ما أوقات تسجيل الوصول والمغادرة؟','هل الإفطار مجاني للنزلاء؟','هل تتوفر خدمة التوصيل من وإلى المطار؟','هل توجد مواقف سيارات؟','كيف يتم تأكيد الحجز؟'];
+ const displayFaqs=remoteFaqs?.map(f=>({q:f.question_ar,a:f.answer_ar}))||[{q:'ما أوقات تسجيل الوصول والمغادرة؟',a:'تواصل مع فريق الفندق قبل الوصول لتأكيد تفاصيل تسجيل الدخول والمغادرة.'},{q:'هل الإفطار مجاني للنزلاء؟',a:'نعم، الموقع الرسمي يذكر الإفطار المجاني للنزلاء.'},{q:'هل تتوفر خدمة التوصيل من وإلى المطار؟',a:'نعم، تتوفر خدمة التوصيل والاستقبال من وإلى المطار.'},{q:'هل توجد مواقف سيارات؟',a:'نعم، تتوفر مواقف سيارات مجانية للنزلاء.'},{q:'كيف يتم تأكيد الحجز؟',a:'يُرسل طلب الحجز إلى واتساب الفندق ثم يتواصل فريق الحجز لتأكيد التفاصيل والتوفر.'}];
  const nav=useMemo(()=>lang==='ar'?['الرئيسية','الغرف والأجنحة','الخدمات','عن الفندق','تواصل معنا']:['Home','Rooms','Services','About','Contact'],[lang]);
  const jump=(id:string)=>{setMenu(false);document.getElementById(id)?.scrollIntoView({behavior:'smooth'})};
+ const gallery=remoteGallery||[]; const offers=remoteOffers||[];
  useEffect(()=>{if(!settings)return;const root=document.documentElement;root.style.setProperty('--gold',settings.primary_color||'#b99761');root.style.setProperty('--green',settings.secondary_color||'#2e3a32');root.style.setProperty('--cream',settings.background_color||'#f5f1e9');root.style.setProperty('--gold2',settings.accent_color||'#d3b77f');document.title=settings.meta_title_ar||settings.hotel_name||'Panorama Hotel Aden'},[settings]);
  const brandName=settings?.hotel_name||'PANORAMA';
  const phonePrimary=settings?.phone_primary||'+967 783 231 118';
@@ -65,7 +66,7 @@ export default function App(){
   </header>
 
   <main>
-   <section className="hero-pano">
+   <section className="hero-pano" style={{backgroundImage:`url(${settings?.hero_image_url||hotelImages.exterior})`}}>
     <div className="hero-overlay"/>
     <div className="hero-content">
       <div className="stars">★★★★★ <span>فندق بانوراما · عدن</span></div>
@@ -106,18 +107,22 @@ export default function App(){
 
    <section className="dining section"><div><span className="eyebrow">الطعام والشراب</span><h2>مطعم المراسيم<br/><em>وكافيه بانوراما.</em></h2><p>مطعم متكامل يقدم الإفطار والغداء والعشاء، إلى جانب كافيه يقدم المشروبات والعصائر الطازجة والحلويات والوجبات الخفيفة.</p><button className="text-btn" onClick={()=>jump('contact')}>تواصل مع الفندق <ArrowLeft size={15}/></button></div><div className="dining-photo"><img src={hotelImages.dining} alt="مطعم الفندق"/></div></section>
 
+   <section className="gallery section"><div className="section-heading"><div><span className="eyebrow">الصور</span><h2>بانوراما<br/><em>من الداخل.</em></h2></div><p>لقطات من الفندق والإقامة والمرافق، تُدار بالكامل من لوحة التحكم.</p></div><div className="gallery-grid">{gallery.map((g:any)=><img key={g.id} src={g.image_url} alt={g.title_ar||brandName}/>)}</div></section>
+
+   {offers.length>0&&<section className="offers section"><div className="section-heading"><div><span className="eyebrow">عروض وباقات</span><h2>إقامة<br/><em>أكثر قيمة.</em></h2></div><p>عروض موسمية وباقات يمكن تحديثها مباشرة من لوحة الإدارة.</p></div><div className="offer-grid">{offers.map((o:any)=><article key={o.id}><img src={o.image_url||hotelImages.room} alt={o.title_ar}/><div><span className="eyebrow">عرض خاص</span><h3>{o.title_ar}</h3><p>{o.description_ar}</p>{o.price&&<b>{o.price} USD</b>}</div></article>)}</div></section>}
+
    <section className="amenities-band"><div><span>صالة ألعاب</span><b>بلياردو · بلايستيشن · تنس طاولة</b></div><div><span>قاعات اجتماعات</span><b>قاعات متنوعة ومتكاملة</b></div><div><span>كافيه الدور السابع</span><b>أجواء هادئة ومذاق رائع</b></div></section>
 
    <section className="testimonials section"><span className="eyebrow">شهادات ضيوفنا</span><h2>تجارب من<br/><em>زوار بانوراما.</em></h2><div className="testimonial-grid"><blockquote>“فندق بانوراما عدن حيث طيب الإقامة وروعة المكان، تجربة مميزة في مدينة الجمال عدن.”<small>ماريا قحطان · فنانة</small></blockquote><blockquote>“ضمن زيارتي في عدن قررت الإقامة في فندق بانوراما… فخامة وخدمات متنوعة وغرف وأجنحة خاصة.”<small>شيماء محمد · ممثلة</small></blockquote><blockquote>“من أكبر وأفخم الفنادق والذي يعكس صورة جميلة لكل الزوار من خارج مدينتنا الحبيبة عدن.”<small>فهد بن جعموم · شاعر</small></blockquote></div></section>
 
-   <section className="faq section"><div><span className="eyebrow">معلومات مهمة</span><h2>قبل<br/><em>وصولك.</em></h2></div><div>{displayFaqs.map((q:any,i:number)=><div className="faq-row" key={q}><button onClick={()=>setFaq(faq===i?-1:i)}>{q}<ChevronDown className={faq===i?'up':''}/></button>{faq===i&&<p>{i===1?'نعم، الموقع الرسمي يذكر الإفطار المجاني للنزلاء.':i===2?'نعم، تتوفر خدمة التوصيل والاستقبال من وإلى المطار.':i===3?'نعم، تتوفر مواقف سيارات مجانية للنزلاء.':i===4?'يُرسل طلب الحجز إلى واتساب الفندق ثم يتواصل فريق الحجز لتأكيد التفاصيل والتوفر.':'تواصل مع فريق الفندق قبل الوصول لتأكيد تفاصيل تسجيل الدخول والمغادرة.'}</p>}</div>)}</div></section>
+   <section className="faq section"><div><span className="eyebrow">معلومات مهمة</span><h2>قبل<br/><em>وصولك.</em></h2></div><div>{displayFaqs.map((item:any,i:number)=><div className="faq-row" key={item.q}><button onClick={()=>setFaq(faq===i?-1:i)}>{item.q}<ChevronDown className={faq===i?'up':''}/></button>{faq===i&&<p>{item.a}</p>}</div>)}</div></section>
 
    <section className="final-cta"><div><span className="eyebrow">بانوراما عدن</span><h2>اجعل إقامتك القادمة<br/><em>تبدأ من هنا.</em></h2></div><button className="gold-btn" onClick={()=>setBooking(true)}>احجز الآن <ArrowLeft size={17}/></button></section>
   </main>
 
   <footer id="contact">
    <div className="footer-top"><Logo dark name={brandName} logoUrl={settings?.logo_url}/><div><span className="eyebrow">تواصل معنا</span><h3>فريق بانوراما<br/>في خدمتك.</h3></div><div className="contact-list"><a href={'tel:'+phonePrimary.replace(/\s/g,'')}><Phone/>{phonePrimary}</a><a href={'tel:'+phoneSecondary.replace(/\s/g,'')}><Phone/>{phoneSecondary}</a><a href={'mailto:'+email}><AtSign/>{email}</a><span><MapPin/>عدن · خورمكسر · ساحل أبين · بجوار مطار عدن الدولي</span></div></div>
-   <div className="footer-bottom"><span>© 2026 Panorama Hotel Aden. جميع الحقوق محفوظة.</span><span>فندق خمسة نجوم في قلب مدينة عدن على إطلالة بحرية وبالقرب من المطار.</span><div><Instagram/></div></div>
+   <div className="footer-bottom"><span>© 2026 {brandName}. جميع الحقوق محفوظة.</span><span>{settings?.footer_text_ar||'فندق بانوراما عدن — إقامة عصرية على ساحل أبين بالقرب من مطار عدن الدولي.'}</span><div className="socials">{settings?.social_instagram&&<a href={settings.social_instagram} target="_blank"><Instagram/></a>}{settings?.social_facebook&&<a href={settings.social_facebook} target="_blank">f</a>}{settings?.social_tiktok&&<a href={settings.social_tiktok} target="_blank">♪</a>}</div></div>
   </footer>
 
   {booking&&<BookingModal close={()=>setBooking(false)} selectedRoom={selected?.name}/>}
