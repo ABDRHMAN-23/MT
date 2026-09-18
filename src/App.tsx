@@ -33,7 +33,7 @@ const perks=[
  ['99','غرفة وجناح فاخر'],['5','طوابق سكنية'],['24/7','استقبال'],['SEA','إطلالة ساحلية']
 ];
 
-function Logo({dark=false}:{dark?:boolean}){return <a className={'brand '+(dark?'brand-dark':'')} href="#top" aria-label="Panorama Hotel"><span className="brand-mark"><b>PH</b><i>★★★★★</i></span><span><strong>{brandName}</strong><small>HOTEL · ADEN</small></span></a>}
+function Logo({dark=false,name='PANORAMA',logoUrl}:{dark?:boolean;name?:string;logoUrl?:string}){return <a className={'brand '+(dark?'brand-dark':'')} href="#top" aria-label={name}><span className="brand-mark">{logoUrl?<img src={logoUrl} alt=""/>:<><b>PH</b><i>★★★★★</i></>}</span><span><strong>{name}</strong><small>HOTEL · ADEN</small></span></a>}
 
 function BookingModal({close,selectedRoom}:{close:()=>void;selectedRoom?:string}){
  const [sent,setSent]=useState(false);
@@ -59,7 +59,7 @@ export default function App(){
  const whatsapp=settings?.whatsapp||WA;
  return <div className="site" dir="rtl" id="top">
   <header className="topbar">
-   <Logo/>
+   <Logo name={brandName} logoUrl={settings?.logo_url}/>
    <nav className={menu?'open':''}><button onClick={()=>jump('top')}>{nav[0]}</button><button onClick={()=>jump('rooms')}>{nav[1]}</button><button onClick={()=>jump('services')}>{nav[2]}</button><button onClick={()=>jump('about')}>{nav[3]}</button><button onClick={()=>jump('contact')}>{nav[4]}</button></nav>
    <div className="top-actions"><button className="lang" onClick={()=>setLang(lang==='ar'?'en':'ar')}>{lang==='ar'?'EN':'عربي'}</button><button className="book-mini" onClick={()=>setBooking(true)}>احجز الآن <ArrowLeft size={15}/></button><button className="menu-btn" onClick={()=>setMenu(!menu)}>{menu?<X/>:<Menu/>}</button></div>
   </header>
@@ -116,7 +116,7 @@ export default function App(){
   </main>
 
   <footer id="contact">
-   <div className="footer-top"><Logo dark/><div><span className="eyebrow">تواصل معنا</span><h3>فريق بانوراما<br/>في خدمتك.</h3></div><div className="contact-list"><a href={'tel:'+phonePrimary.replace(/\s/g,'')}><Phone/>{phonePrimary}</a><a href={'tel:'+phoneSecondary.replace(/\s/g,'')}><Phone/>{phoneSecondary}</a><a href={'mailto:'+email}><AtSign/>{email}</a><span><MapPin/>عدن · خورمكسر · ساحل أبين · بجوار مطار عدن الدولي</span></div></div>
+   <div className="footer-top"><Logo dark name={brandName} logoUrl={settings?.logo_url}/><div><span className="eyebrow">تواصل معنا</span><h3>فريق بانوراما<br/>في خدمتك.</h3></div><div className="contact-list"><a href={'tel:'+phonePrimary.replace(/\s/g,'')}><Phone/>{phonePrimary}</a><a href={'tel:'+phoneSecondary.replace(/\s/g,'')}><Phone/>{phoneSecondary}</a><a href={'mailto:'+email}><AtSign/>{email}</a><span><MapPin/>عدن · خورمكسر · ساحل أبين · بجوار مطار عدن الدولي</span></div></div>
    <div className="footer-bottom"><span>© 2026 Panorama Hotel Aden. جميع الحقوق محفوظة.</span><span>فندق خمسة نجوم في قلب مدينة عدن على إطلالة بحرية وبالقرب من المطار.</span><div><Instagram/></div></div>
   </footer>
 
