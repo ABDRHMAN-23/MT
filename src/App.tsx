@@ -1,4 +1,5 @@
-import {useMemo,useState} from 'react';
+import {useEffect,useMemo,useState} from 'react';
+import {supabase} from './lib/supabase';
 import {ArrowLeft,ArrowRight,CalendarDays,ChevronDown,Clock3,Instagram,MapPin,Menu,Phone,Plane,Star,X,Users,Wifi,Car,Utensils,CircleParking,Gamepad2,Dumbbell,Store,AtSign} from 'lucide-react';
 
 const WA='967783231118';
@@ -42,7 +43,12 @@ function BookingModal({close,selectedRoom}:{close:()=>void;selectedRoom?:string}
 }
 
 export default function App(){
- const [menu,setMenu]=useState(false),[booking,setBooking]=useState(false),[selected,setSelected]=useState<typeof rooms[number]|null>(null),[lang,setLang]=useState<'ar'|'en'>('ar'),[faq,setFaq]=useState(-1);
+ const [menu,setMenu]=useState(false),[booking,setBooking]=useState(false),[selected,setSelected]=useState<any|null>(null),[lang,setLang]=useState<'ar'|'en'>('ar'),[faq,setFaq]=useState(-1);
+ const [remoteRooms,setRemoteRooms]=useState<any[]|null>(null),[remoteServices,setRemoteServices]=useState<any[]|null>(null),[remoteFaqs,setRemoteFaqs]=useState<any[]|null>(null);
+ useEffect(()=>{let active=true;(async()=>{const [r,s,f]=await Promise.all([supabase.from('pano_rooms').select('*').order('sort_order'),supabase.from('pano_services').select('*').order('sort_order'),supabase.from('pano_faqs').select('*').order('sort_order')]);if(!active)return;if(!r.error&&r.data?.length)setRemoteRooms(r.data);if(!s.error&&s.data?.length)setRemoteServices(s.data);if(!f.error&&f.data?.length)setRemoteFaqs(f.data)})();return()=>{active=false}},[]);
+ const displayRooms=remoteRooms?.map(r=>({name:r.name_ar,en:r.name_en,tag:r.tag,meta:r.meta_ar,features:r.features_ar||[],image:r.image_url}))||rooms;
+ const displayServices=remoteServices?.map(s=>[s.title_ar,s.subtitle_ar,s.description_ar,s.icon] as any[])||services;
+ const displayFaqs=remoteFaqs?.map(f=>f.question_ar)||['ما أوقات تسجيل الوصول والمغادرة؟','هل الإفطار مجاني للنزلاء؟','هل تتوفر خدمة التوصيل من وإلى المطار؟','هل توجد مواقف سيارات؟','كيف يتم تأكيد الحجز؟'];
  const nav=useMemo(()=>lang==='ar'?['الرئيسية','الغرف والأجنحة','الخدمات','عن الفندق','تواصل معنا']:['Home','Rooms','Services','About','Contact'],[lang]);
  const jump=(id:string)=>{setMenu(false);document.getElementById(id)?.scrollIntoView({behavior:'smooth'})};
  return <div className="site" dir="rtl" id="top">
@@ -77,7 +83,7 @@ export default function App(){
 
    <section className="rooms-section section" id="rooms">
     <div className="section-heading"><div><span className="eyebrow">الإقامة</span><h2>غرف وأجنحة<br/><em>بانوراما.</em></h2></div><p>اختر الإقامة التي تناسب رحلتك، من الجناح الرئاسي البحري إلى الغرف العملية بإطلالات مختلفة.</p></div>
-    <div className="room-grid">{rooms.map((r,i)=><article className="room-card" key={r.name} onClick={()=>setSelected(r)}><div className="room-photo"><img src={r.image} alt={r.name}/><span>{r.tag}</span><button>تفاصيل <ArrowLeft size={14}/></button></div><div className="room-info"><div><h3>{r.name}</h3><p>{r.meta}</p></div><small>0{i+1}</small></div></article>)}</div>
+    <div className="room-grid">{displayRooms.map((r:any,i:number)=><article className="room-card" key={r.name} onClick={()=>setSelected(r)}><div className="room-photo"><img src={r.image} alt={r.name}/><span>{r.tag}</span><button>تفاصيل <ArrowLeft size={14}/></button></div><div className="room-info"><div><h3>{r.name}</h3><p>{r.meta}</p></div><small>0{i+1}</small></div></article>)}</div>
    </section>
 
    <section className="image-story"><img src={hotelImages.exterior} alt="فندق بانوراما عدن"/><div className="image-story-card"><span className="eyebrow">الموقع</span><h2>في خورمكسر،<br/><em>على ساحل أبين.</em></h2><p>بجوار مطار عدن الدولي، مع إطلالات على البحر والمدينة والمطار.</p><button className="text-btn" onClick={()=>jump('contact')}>معلومات الوصول <ArrowLeft size={15}/></button></div></section>
@@ -85,7 +91,7 @@ export default function App(){
    <section className="services section" id="services">
     <div className="section-kicker"><span>02</span><i/><span>الخدمات والتجارب</span></div>
     <div><div className="section-heading compact"><div><span className="eyebrow">كل ما تحتاجه</span><h2>أكثر من مجرد<br/><em>غرفة.</em></h2></div><p>خدمات الفندق الحالية كما يقدمها بانوراما، مرتبة في تجربة رقمية أوضح وأسهل للضيف.</p></div>
-    <div className="service-grid">{services.map(([title,sub,desc,Icon]:any)=><article key={title}><Icon/><span>{sub}</span><h3>{title}</h3><p>{desc}</p></article>)}</div></div>
+    <div className="service-grid">{displayServices.map(([title,sub,desc,icon]:any)=><article key={title}><span className="service-icon">{icon}</span><span>{sub}</span><h3>{title}</h3><p>{desc}</p></article>)}</div></div>
    </section>
 
    <section className="experience">
@@ -98,7 +104,7 @@ export default function App(){
 
    <section className="testimonials section"><span className="eyebrow">شهادات ضيوفنا</span><h2>تجارب من<br/><em>زوار بانوراما.</em></h2><div className="testimonial-grid"><blockquote>“فندق بانوراما عدن حيث طيب الإقامة وروعة المكان، تجربة مميزة في مدينة الجمال عدن.”<small>ماريا قحطان · فنانة</small></blockquote><blockquote>“ضمن زيارتي في عدن قررت الإقامة في فندق بانوراما… فخامة وخدمات متنوعة وغرف وأجنحة خاصة.”<small>شيماء محمد · ممثلة</small></blockquote><blockquote>“من أكبر وأفخم الفنادق والذي يعكس صورة جميلة لكل الزوار من خارج مدينتنا الحبيبة عدن.”<small>فهد بن جعموم · شاعر</small></blockquote></div></section>
 
-   <section className="faq section"><div><span className="eyebrow">معلومات مهمة</span><h2>قبل<br/><em>وصولك.</em></h2></div><div>{['ما أوقات تسجيل الوصول والمغادرة؟','هل الإفطار مجاني للنزلاء؟','هل تتوفر خدمة التوصيل من وإلى المطار؟','هل توجد مواقف سيارات؟','كيف يتم تأكيد الحجز؟'].map((q,i)=><div className="faq-row" key={q}><button onClick={()=>setFaq(faq===i?-1:i)}>{q}<ChevronDown className={faq===i?'up':''}/></button>{faq===i&&<p>{i===1?'نعم، الموقع الرسمي يذكر الإفطار المجاني للنزلاء.':i===2?'نعم، تتوفر خدمة التوصيل والاستقبال من وإلى المطار.':i===3?'نعم، تتوفر مواقف سيارات مجانية للنزلاء.':i===4?'يُرسل طلب الحجز إلى واتساب الفندق ثم يتواصل فريق الحجز لتأكيد التفاصيل والتوفر.':'تواصل مع فريق الفندق قبل الوصول لتأكيد تفاصيل تسجيل الدخول والمغادرة.'}</p>}</div>)}</div></section>
+   <section className="faq section"><div><span className="eyebrow">معلومات مهمة</span><h2>قبل<br/><em>وصولك.</em></h2></div><div>{displayFaqs.map((q:any,i:number)=><div className="faq-row" key={q}><button onClick={()=>setFaq(faq===i?-1:i)}>{q}<ChevronDown className={faq===i?'up':''}/></button>{faq===i&&<p>{i===1?'نعم، الموقع الرسمي يذكر الإفطار المجاني للنزلاء.':i===2?'نعم، تتوفر خدمة التوصيل والاستقبال من وإلى المطار.':i===3?'نعم، تتوفر مواقف سيارات مجانية للنزلاء.':i===4?'يُرسل طلب الحجز إلى واتساب الفندق ثم يتواصل فريق الحجز لتأكيد التفاصيل والتوفر.':'تواصل مع فريق الفندق قبل الوصول لتأكيد تفاصيل تسجيل الدخول والمغادرة.'}</p>}</div>)}</div></section>
 
    <section className="final-cta"><div><span className="eyebrow">بانوراما عدن</span><h2>اجعل إقامتك القادمة<br/><em>تبدأ من هنا.</em></h2></div><button className="gold-btn" onClick={()=>setBooking(true)}>احجز الآن <ArrowLeft size={17}/></button></section>
   </main>
