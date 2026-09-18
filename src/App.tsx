@@ -1,125 +1,28 @@
-import { lazy, Suspense, useEffect } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
-import { SettingsProvider } from './contexts/SettingsContext';
-import { ShopProvider } from './contexts/ShopContext';
-import { ToastProvider } from './contexts/ToastContext';
-import { ConfirmProvider } from './contexts/ConfirmContext';
-import { LocaleProvider } from './contexts/LocaleContext';
-import ScrollToTop from './components/ScrollToTop';
-import StoreLayout from './components/StoreLayout';
-import ProtectedRoute from './components/ProtectedRoute';
-import { Monogram } from './components/Logo';
+import { useEffect } from 'react';
 
-// The landing page stays in the main bundle so the first paint has no waterfall.
-import Home from './pages/Home';
+const hero = 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=2200&q=88';
 
-// Everything else is split out: storefront visitors never download the admin,
-// and each route arrives only when it is actually opened.
-const Catalog = lazy(() => import('./pages/Catalog'));
-const ProductPage = lazy(() => import('./pages/ProductPage'));
-const CartPage = lazy(() => import('./pages/CartPage'));
-const Checkout = lazy(() => import('./pages/Checkout'));
-const Confirmation = lazy(() => import('./pages/Confirmation'));
-const Story = lazy(() => import('./pages/Story'));
-const Track = lazy(() => import('./pages/Track'));
-const NotFound = lazy(() => import('./pages/NotFound'));
-
-const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
-const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
-const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
-const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
-const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
-const AdminCustomers = lazy(() => import('./pages/admin/AdminCustomers'));
-const AdminDiscounts = lazy(() => import('./pages/admin/AdminDiscounts'));
-const AdminReviews = lazy(() => import('./pages/admin/AdminReviews'));
-const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
-const AdminAccount = lazy(() => import('./pages/admin/AdminAccount'));
-
-function RouteFallback() {
-  return (
-    <div className="grid min-h-[60vh] place-items-center bg-cream">
-      <Monogram size={46} className="float-soft text-gold" />
-    </div>
-  );
-}
-
-/**
- * Warm the chunks a shopper is most likely to open next, but only once the
- * browser is idle — navigation then feels instant without delaying first paint.
- */
-function usePrefetchRoutes() {
-  useEffect(() => {
-    const warm = () => {
-      import('./pages/Catalog');
-      import('./pages/ProductPage');
-      import('./pages/CartPage');
-    };
-    const ric = (window as unknown as {
-      requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
-    }).requestIdleCallback;
-    if (ric) {
-      const id = ric(warm, { timeout: 2500 });
-      return () => (window as unknown as { cancelIdleCallback?: (h: number) => void })
-        .cancelIdleCallback?.(id);
-    }
-    const t = window.setTimeout(warm, 1800);
-    return () => window.clearTimeout(t);
-  }, []);
-}
+const rooms = [
+  { name: 'The Grand Suite', meta: '120 m² · King Bed · Sea View', price: '$420', image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=82' },
+  { name: 'Signature Room', meta: '48 m² · King Bed · Garden View', price: '$210', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=82' },
+  { name: 'Pool Residence', meta: '86 m² · Private Terrace · Pool', price: '$330', image: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=82' },
+];
 
 export default function App() {
-  usePrefetchRoutes();
+  useEffect(() => { document.title = 'AURELIA — Hotel & Residences'; }, []);
 
-  return (
-    <BrowserRouter>
-      <AuthProvider>
-        <SettingsProvider>
-          <LocaleProvider>
-          <ToastProvider>
-            <ConfirmProvider>
-              <ShopProvider>
-                <ScrollToTop />
-                <Suspense fallback={<RouteFallback />}>
-                  <Routes>
-                    <Route element={<StoreLayout />}>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/shop" element={<Catalog />} />
-                      <Route path="/dessert/:slug" element={<ProductPage />} />
-                      <Route path="/cart" element={<CartPage />} />
-                      <Route path="/checkout" element={<Checkout />} />
-                      <Route path="/confirmation/:code" element={<Confirmation />} />
-                      <Route path="/story" element={<Story />} />
-                      <Route path="/track" element={<Track />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Route>
-
-                    <Route path="/admin/login" element={<AdminLogin />} />
-                    <Route
-                      path="/admin"
-                      element={
-                        <ProtectedRoute>
-                          <AdminLayout />
-                        </ProtectedRoute>
-                      }
-                    >
-                      <Route index element={<Dashboard />} />
-                      <Route path="orders" element={<AdminOrders />} />
-                      <Route path="products" element={<AdminProducts />} />
-                      <Route path="customers" element={<AdminCustomers />} />
-                      <Route path="discounts" element={<AdminDiscounts />} />
-                      <Route path="reviews" element={<AdminReviews />} />
-                      <Route path="settings" element={<AdminSettings />} />
-                      <Route path="account" element={<AdminAccount />} />
-                    </Route>
-                  </Routes>
-                </Suspense>
-              </ShopProvider>
-            </ConfirmProvider>
-          </ToastProvider>
-          </LocaleProvider>
-        </SettingsProvider>
-      </AuthProvider>
-    </BrowserRouter>
-  );
+  return <main className="hotel-app">
+    <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@400;500;600&display=swap');
+:root{font-family:'DM Sans',sans-serif;color:#292722;background:#f4f0e9}*{box-sizing:border-box}body{margin:0}.hotel-app{min-height:100vh;background:#f4f0e9}.hero{min-height:88vh;position:relative;color:#fff;background-image:linear-gradient(180deg,rgba(20,18,14,.2),rgba(20,18,14,.62)),url(${hero});background-size:cover;background-position:center;display:flex;flex-direction:column}.nav{display:flex;align-items:center;justify-content:space-between;padding:28px 5vw;position:relative;z-index:2}.logo{font-family:'Playfair Display',serif;font-size:25px;letter-spacing:.18em}.navlinks{display:flex;gap:30px;font-size:12px;letter-spacing:.1em;text-transform:uppercase}.nav a{color:#fff;text-decoration:none}.hero-copy{margin:auto 5vw 9vh;max-width:760px}.eyebrow{font-size:11px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:20px}.hero h1{font:500 clamp(54px,8vw,108px)/.92 'Playfair Display',serif;margin:0 0 25px}.hero p{max-width:570px;font-size:17px;line-height:1.7;margin:0 0 34px;color:#eee9df}.cta{display:inline-flex;padding:15px 24px;border:1px solid rgba(255,255,255,.65);color:#fff;text-decoration:none;text-transform:uppercase;letter-spacing:.12em;font-size:11px}.booking{margin:-42px 5vw 0;position:relative;z-index:4;background:#fff;box-shadow:0 18px 55px rgba(40,35,27,.14);display:grid;grid-template-columns:repeat(4,1fr) auto}.book-field{padding:20px 24px;border-right:1px solid #e6e0d6}.book-field span{display:block;color:#8a8378;font-size:10px;text-transform:uppercase;letter-spacing:.13em;margin-bottom:8px}.book-field strong{font-size:14px;font-weight:500}.book-btn{border:0;background:#292722;color:#fff;padding:0 30px;text-transform:uppercase;letter-spacing:.13em;font-size:11px}.section{padding:110px 5vw}.intro{display:grid;grid-template-columns:1fr 1.3fr;gap:8vw;align-items:end}.kicker{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#8b8275}.section h2{font:500 clamp(38px,5vw,68px)/1 'Playfair Display',serif;margin:16px 0}.section p{line-height:1.8;color:#706a61;max-width:560px}.rooms{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:65px}.room{background:#ebe6dd}.room img{width:100%;aspect-ratio:1.15;object-fit:cover;display:block}.room-copy{padding:22px}.room h3{font:500 27px 'Playfair Display',serif;margin:0 0 8px}.room-meta{font-size:12px;color:#777067}.price{margin-top:22px;display:flex;justify-content:space-between;align-items:center;font-size:12px}.price strong{font-size:17px}.feature{display:grid;grid-template-columns:1.1fr 1fr;min-height:620px;background:#2d3029;color:#f7f3eb}.feature img{width:100%;height:100%;object-fit:cover}.feature-copy{padding:9vw 8vw;display:flex;flex-direction:column;justify-content:center}.feature-copy h2{margin-top:14px}.feature-copy p{color:#d0cbc1}.footer{padding:55px 5vw;background:#24231f;color:#d9d3c8;display:flex;justify-content:space-between;gap:30px}.footer strong{font:500 25px 'Playfair Display',serif;letter-spacing:.14em;color:#fff}.footer small{color:#999288}@media(max-width:800px){.navlinks{display:none}.hero{min-height:78vh}.booking{grid-template-columns:1fr 1fr;margin-top:0}.book-btn{min-height:58px;grid-column:1/-1}.intro,.feature{grid-template-columns:1fr}.rooms{grid-template-columns:1fr}.section{padding:75px 6vw}.feature img{min-height:380px}.footer{flex-direction:column}.hero-copy{margin-bottom:7vh}.hero p{font-size:15px}}`}</style>
+    <section className="hero">
+      <nav className="nav"><div className="logo">AURELIA</div><div className="navlinks"><a href="#rooms">Rooms</a><a href="#experience">Experience</a><a href="#dining">Dining</a><a href="#contact">Contact</a></div><a className="cta" href="#book">Book a stay</a></nav>
+      <div className="hero-copy"><div className="eyebrow">Hotel · Residences · Retreat</div><h1>A quieter kind of luxury.</h1><p>A refined hideaway shaped by light, landscape and thoughtful hospitality. Arrive slowly. Stay beautifully.</p><a className="cta" href="#book">Discover Aurelia</a></div>
+    </section>
+    <section id="book" className="booking"><div className="book-field"><span>Check in</span><strong>18 September 2026</strong></div><div className="book-field"><span>Check out</span><strong>21 September 2026</strong></div><div className="book-field"><span>Guests</span><strong>2 Adults · 1 Room</strong></div><div className="book-field"><span>Stay</span><strong>Best available rate</strong></div><button className="book-btn">Check availability</button></section>
+    <section className="section"><div className="intro"><div><div className="kicker">A place to exhale</div><h2>Designed for the moments between moments.</h2></div><p>Aurelia is an intimate hotel where architecture, cuisine and nature meet without competing for attention. Mornings begin softly, afternoons unfold by the water, and evenings belong to good food and long conversations.</p></div></section>
+    <section id="rooms" className="section" style={{paddingTop:20}}><div className="kicker">Stay your way</div><h2>Rooms & Residences</h2><div className="rooms">{rooms.map(r=><article className="room" key={r.name}><img src={r.image} alt={r.name}/><div className="room-copy"><h3>{r.name}</h3><div className="room-meta">{r.meta}</div><div className="price"><strong>From {r.price}</strong><span>Explore →</span></div></div></article>)}</div></section>
+    <section id="experience" className="feature"><img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1500&q=84" alt="Aurelia interior"/><div className="feature-copy"><div className="kicker">The Aurelia ritual</div><h2>Wellness without a schedule.</h2><p>Move between a quiet spa, warm water, shaded gardens and open-air spaces designed to make time feel generous.</p><a className="cta" href="#contact" style={{width:'fit-content'}}>Explore experiences</a></div></section>
+    <section id="dining" className="section"><div className="intro"><div><div className="kicker">Dining</div><h2>Local ingredients. Unhurried evenings.</h2></div><p>Seasonal plates, a thoughtful wine list and a dining room that opens onto the night. Our kitchen keeps its ingredients close to home and its technique quietly precise.</p></div></section>
+    <footer id="contact" className="footer"><div><strong>AURELIA</strong><br/><small>Hotel & Residences · A considered stay</small></div><small>Reservations · +000 000 0000 · stay@aurelia.example</small></footer>
+  </main>;
 }
