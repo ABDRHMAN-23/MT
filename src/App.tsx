@@ -35,7 +35,7 @@ const perks=[
 
 function Logo({dark=false,name='PANORAMA',logoUrl}:{dark?:boolean;name?:string;logoUrl?:string}){return <a className={'brand '+(dark?'brand-dark':'')} href="#top" aria-label={name}><span className="brand-mark">{logoUrl?<img src={logoUrl} alt=""/>:<><b>PH</b><i>★★★★★</i></>}</span><span><strong>{name}</strong><small>HOTEL · ADEN</small></span></a>}
 
-function BookingModal({close,selectedRoom}:{close:()=>void;selectedRoom?:string}){
+function BookingModal({close,selectedRoom,whatsapp}:{close:()=>void;selectedRoom?:string;whatsapp:string}){
  const [sent,setSent]=useState(false);
  const [form,setForm]=useState({name:'',phone:'',checkIn:'',checkOut:'',guests:'2',room:selectedRoom||rooms[0].name});
  const submit=async(e:any)=>{e.preventDefault();const {error}=await supabase.from('pano_bookings').insert({guest_name:form.name,phone:form.phone,check_in:form.checkIn,check_out:form.checkOut,guests:Number(String(form.guests).replace('+',''))||2,room_name:form.room});const msg=`مرحباً فندق بانوراما، أرغب في حجز غرفة.\nالاسم: ${form.name}\nالجوال: ${form.phone}\nالوصول: ${form.checkIn}\nالمغادرة: ${form.checkOut}\nالأشخاص: ${form.guests}\nالغرفة: ${form.room}${error?'\\n(تم إرسال الطلب عبر واتساب؛ تعذر حفظ نسخة قاعدة البيانات.)':''}`;window.open('https://wa.me/'+whatsapp.replace(/\D/g,'')+'?text='+encodeURIComponent(msg),'_blank');setSent(true)};
@@ -125,7 +125,7 @@ export default function App(){
    <div className="footer-bottom"><span>© 2026 {brandName}. جميع الحقوق محفوظة.</span><span>{settings?.footer_text_ar||'فندق بانوراما عدن — إقامة عصرية على ساحل أبين بالقرب من مطار عدن الدولي.'}</span><div className="socials">{settings?.social_instagram&&<a href={settings.social_instagram} target="_blank"><Instagram/></a>}{settings?.social_facebook&&<a href={settings.social_facebook} target="_blank">f</a>}{settings?.social_tiktok&&<a href={settings.social_tiktok} target="_blank">♪</a>}</div></div>
   </footer>
 
-  {booking&&<BookingModal close={()=>setBooking(false)} selectedRoom={selected?.name}/>}
+  {booking&&<BookingModal close={()=>setBooking(false)} selectedRoom={selected?.name} whatsapp={whatsapp}/>}
   {selected&&<div className="modal" onMouseDown={()=>setSelected(null)}><div className="room-modal-pano" onMouseDown={e=>e.stopPropagation()} dir="rtl"><button className="close" onClick={()=>setSelected(null)}><X/></button><img src={selected.image} alt={selected.name}/><div><span className="eyebrow">{selected.en}</span><h2>{selected.name}</h2><p>{selected.meta}</p><ul>{selected.features.map(f=><li key={f}>✓ {f}</li>)}</ul><button className="gold-btn" onClick={()=>{setSelected(null);setBooking(true)}}>احجز هذه الغرفة <ArrowLeft size={16}/></button></div></div></div>}
  </div>
 }
