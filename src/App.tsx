@@ -1,7 +1,7 @@
 import {useEffect,useMemo,useState} from 'react';
 import {createClient} from '@supabase/supabase-js';
 
-const supabase=createClient(import.meta.env.VITE_SUPABASE_URL || 'https://djpfjbjjybpquvzacmtj.supabase.co', import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '');
+const supabase=createClient(import.meta.env.VITE_SUPABASE_URL || 'https://djpfjbjjybpquvzacmtj.supabase.co', import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_TkjtLbzWTqXlE18tcvGpow_XFxdTvmz');
 import {Heart,Check,ArrowLeft,ArrowRight,CalendarDays,ChevronDown,Clock3,Instagram,MapPin,Menu,Phone,Plane,Star,X,Users,Wifi,Car,Utensils,CircleParking,Gamepad2,Dumbbell,Store,AtSign} from 'lucide-react';
 
 const WA='967783231118';
