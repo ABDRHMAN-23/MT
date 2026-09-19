@@ -20,6 +20,9 @@ const rooms=[
  {name:'غرفة بحري مع جاكوزي',en:'Sea View Jacuzzi Room',tag:'Jacuzzi',meta:'إطلالة بحرية · جاكوزي خاص',features:['سرير مزدوج','إطلالة بحرية','جاكوزي','مساحة ترفيهية مجانية'],image:hotelImages.pool}
 ];
 
+const iconMap:any={Utensils,Clock3,Dumbbell,Gamepad2,Store,Car,Wifi,Plane,CircleParking,Star};
+function renderServiceIcon(icon:any){if(typeof icon==='function')return createElement(icon,{size:22,strokeWidth:1.7});if(typeof icon==='string')return createElement(iconMap[icon]||Clock3,{size:22,strokeWidth:1.7});return createElement(Clock3,{size:22,strokeWidth:1.7});}
+
 const services=[
  ['مطعم المراسيم','إفطار وغداء وعشاء','استمتع بتجربة طعام متكاملة داخل الفندق.',Utensils],
  ['كافيه الفندق','مشروبات وحلويات ووجبات خفيفة','أجواء هادئة ومذاق رائع طوال اليوم.',Clock3],
@@ -98,7 +101,7 @@ export default function App(){
    <section className="services section" id="services">
     <div className="section-kicker"><span>02</span><i/><span>الخدمات والتجارب</span></div>
     <div><div className="section-heading compact"><div><span className="eyebrow">كل ما تحتاجه</span><h2>أكثر من مجرد<br/><em>غرفة.</em></h2></div><p>خدمات الفندق الحالية كما يقدمها بانوراما، مرتبة في تجربة رقمية أوضح وأسهل للضيف.</p></div>
-    <div className="service-grid">{displayServices.map(([title,sub,desc,icon]:any)=><article key={title}><span className="service-icon">{typeof icon==='function'?createElement(icon):icon}</span><span>{sub}</span><h3>{title}</h3><p>{desc}</p></article>)}</div></div>
+    <div className="service-grid">{displayServices.map(([title,sub,desc,icon]:any)=><article key={title}><span className="service-icon">{renderServiceIcon(icon)}</span><span>{sub}</span><h3>{title}</h3><p>{desc}</p></article>)}</div></div>
    </section>
 
    <section className="experience">
