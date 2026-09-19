@@ -8,13 +8,15 @@ const hotelImages={
   lobby:'https://panorama-ye.com/wp-content/uploads/2025/02/DSC04851.jpg',
   room:'https://panorama-ye.com/wp-content/uploads/2025/02/DSC04805.jpg',
   pool:'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1800&q=88',
-  dining:'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=1800&q=88'
+  dining:'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=1800&q=88',
+  room2:'https://panorama-ye.com/wp-content/uploads/2025/04/DSC05163-600x600.jpg',
+  room3:'https://panorama-ye.com/wp-content/uploads/2025/04/DSC05026-1-600x600.jpg'
 };
 
 const rooms=[
  {name:'جناح رئاسي بحري',en:'Presidential Sea Suite',tag:'VIP',meta:'إطلالة بحرية · مسبح خاص',features:['سرير فاخر','إطلالة بحرية','مسبح خاص','واي فاي مجاني'],image:hotelImages.room},
- {name:'جناح ملكي بحري',en:'Royal Sea Suite',tag:'Sea View',meta:'سرير عائلي · مجلس خاص',features:['سرير عائلي','مجلس خاص','إطلالة بحرية','تكييف وتلفزيون LED'],image:hotelImages.lobby},
- {name:'جناح ملكي خلفي',en:'Royal Rear Suite',tag:'Royal',meta:'إطلالة خلفية · منطقة جلوس',features:['سرير عائلي','منطقة جلوس','واي فاي مجاني','موقف سيارات مجاني'],image:hotelImages.room},
+ {name:'جناح ملكي بحري',en:'Royal Sea Suite',tag:'Sea View',meta:'سرير عائلي · مجلس خاص',features:['سرير عائلي','مجلس خاص','إطلالة بحرية','تكييف وتلفزيون LED'],image:hotelImages.room2},
+ {name:'جناح ملكي خلفي',en:'Royal Rear Suite',tag:'Royal',meta:'إطلالة خلفية · منطقة جلوس',features:['سرير عائلي','منطقة جلوس','واي فاي مجاني','موقف سيارات مجاني'],image:hotelImages.room3},
  {name:'غرفة بحري',en:'Sea View Room',tag:'Sea View',meta:'إطلالة بحرية · منطقة جلوس',features:['سرير عائلي','إطلالة بحرية','منطقة جلوس','تكييف وتلفزيون LED'],image:hotelImages.lobby},
  {name:'غرفة خلفي',en:'Rear Room',tag:'Comfort',meta:'سرير مزدوج أو سريران',features:['واي فاي مجاني','سرير مزدوج أو سريران','تكييف','تلفزيون LED'],image:hotelImages.room},
  {name:'غرفة بحري مع جاكوزي',en:'Sea View Jacuzzi Room',tag:'Jacuzzi',meta:'إطلالة بحرية · جاكوزي خاص',features:['سرير مزدوج','إطلالة بحرية','جاكوزي','مساحة ترفيهية مجانية'],image:hotelImages.pool}
@@ -41,7 +43,7 @@ const services=[
 ];
 
 const perks=[
- ['99','غرفة وجناح فاخر'],['5','طوابق سكنية'],['24/7','استقبال'],['SEA','إطلالة ساحلية']
+ ['80','غرفة وجناح'],['5','طوابق سكنية'],['24/7','استقبال'],['SEA','إطلالة ساحلية']
 ];
 
 function Logo({dark=false,name='PANORAMA',logoUrl}:{dark?:boolean;name?:string;logoUrl?:string}){return <a className={'brand '+(dark?'brand-dark':'')} href="#top" aria-label={name}><span className="brand-mark">{logoUrl?<img src={logoUrl} alt={name}/>:<><b>PH</b><i>★★★★★</i></>}</span><span><strong>{name}</strong><small>HOTEL · ADEN</small></span></a>}
@@ -54,7 +56,9 @@ function BookingModal({close,selectedRoom,whatsapp}:{close:()=>void;selectedRoom
 }
 
 export default function App(){
- const [menu,setMenu]=useState(false),[booking,setBooking]=useState(false),[selected,setSelected]=useState<any|null>(null),[lang,setLang]=useState<'ar'|'en'>('ar'),[faq,setFaq]=useState(-1);
+ const [menu,setMenu]=useState(false),[booking,setBooking]=useState(false),[selected,setSelected]=useState<any|null>(null),[lang,setLang]=useState<'ar'|'en'>('ar'),[faq,setFaq]=useState(-1),[heroSlide,setHeroSlide]=useState(0);
+ const heroSlides=[settings?.hero_image_url||hotelImages.exterior,hotelImages.lobby,hotelImages.room2,hotelImages.room3];
+ useEffect(()=>{const timer=window.setInterval(()=>setHeroSlide(v=>(v+1)%heroSlides.length),6500);return()=>window.clearInterval(timer)},[heroSlides.length]);
  const [remoteRooms,setRemoteRooms]=useState<any[]|null>(null),[remoteServices,setRemoteServices]=useState<any[]|null>(null),[remoteFaqs,setRemoteFaqs]=useState<any[]|null>(null),[remoteGallery,setRemoteGallery]=useState<any[]|null>(null),[remoteOffers,setRemoteOffers]=useState<any[]|null>(null),[remoteSections,setRemoteSections]=useState<any[]|null>(null),[settings,setSettings]=useState<any>(null);
  useEffect(()=>{let active=true;(async()=>{const [r,s,f,g,o,sec,st]=await Promise.all([supabase.from('pano_rooms').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_services').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_faqs').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_gallery').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_offers').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_sections').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_site_settings').select('*').eq('id',true).single()]);if(!active)return;if(!r.error&&r.data?.length)setRemoteRooms(r.data);if(!s.error&&s.data?.length)setRemoteServices(s.data);if(!f.error&&f.data?.length)setRemoteFaqs(f.data);if(!g.error&&g.data?.length)setRemoteGallery(g.data);if(!o.error&&o.data?.length)setRemoteOffers(o.data);if(!sec.error&&sec.data?.length)setRemoteSections(sec.data);if(!st.error&&st.data)setSettings(st.data)})();return()=>{active=false}},[]);
  const displayRooms=remoteRooms?.map(r=>({name:r.name_ar,en:r.name_en,tag:r.tag,meta:r.meta_ar,features:r.features_ar||[],image:r.image_url}))||rooms;
@@ -77,15 +81,15 @@ export default function App(){
   </header>
 
   <main>
-   <section className="hero-pano" style={{backgroundImage:`url(${settings?.hero_image_url||hotelImages.exterior})`}}>
-    <div className="hero-overlay"/>
+   <section className="hero-pano">
+    <div className="hero-slides">{heroSlides.map((src:string,i:number)=><img key={src} className={i===heroSlide?'active':''} src={src} alt="Panorama Hotel Aden"/>)}</div><div className="hero-overlay"/>
     <div className="hero-content">
       <div className="stars">★★★★★ <span>فندق بانوراما · عدن</span></div>
       <h1>{(settings?.hero_title_ar||'إطلالة على البحر. إقامة تستحق أن تُذكر.').split('\n').map((x:string,i:number)=><span key={i}>{x}{i===0&&<br/>}</span>)}</h1>
       <p>{settings?.hero_description_ar||'فندق بانوراما في خورمكسر — تجربة فندقية عصرية على ساحل أبين، بالقرب من مطار عدن الدولي.'}</p>
       <div className="hero-buttons"><button className="gold-btn" onClick={()=>setBooking(true)}>احجز إقامتك <ArrowLeft size={17}/></button><button className="ghost-btn" onClick={()=>jump('about')}>اكتشف بانوراما</button></div>
     </div>
-    <div className="hero-note"><span>01</span><i/> <span>عدن · اليمن</span></div>
+    <div className="hero-note"><span>0{heroSlide+1}</span><i/> <span>عدن · اليمن</span></div><div className="hero-proof"><span>PANORAMA HOTEL</span><b>ADEN · YEMEN</b><small>80 ROOMS · SEA VIEW · AIRPORT ACCESS</small></div><div className="hero-dots">{heroSlides.map((_,i)=><button key={i} className={i===heroSlide?'active':''} onClick={()=>setHeroSlide(i)} aria-label={'الصورة '+(i+1)}/>)}</div>
    </section>
 
    <section className="booking-strip" dir="rtl">
@@ -104,7 +108,7 @@ export default function App(){
     <div className="room-grid">{displayRooms.map((r:any,i:number)=><article className="room-card" key={r.name} onClick={()=>setSelected(r)}><div className="room-photo"><img src={r.image} alt={r.name}/><span>{r.tag}</span><button>تفاصيل <ArrowLeft size={14}/></button></div><div className="room-info"><div><h3>{r.name}</h3><p>{r.meta}</p></div><small>0{i+1}</small></div></article>)}</div>
    </section>
 
-   <section className="image-story"><img src={settings?.hero_image_url||hotelImages.exterior} alt={brandName}/><div className="image-story-card"><span className="eyebrow">الموقع</span><h2>في خورمكسر،<br/><em>على ساحل أبين.</em></h2><p>بجوار مطار عدن الدولي، مع إطلالات على البحر والمدينة والمطار.</p><button className="text-btn" onClick={()=>jump('contact')}>معلومات الوصول <ArrowLeft size={15}/></button></div></section>
+   <section className="image-story"><img src={hotelImages.exterior} alt={brandName}/><div className="image-story-card"><span className="eyebrow">الموقع</span><h2>في خورمكسر،<br/><em>على ساحل أبين.</em></h2><p>بجوار مطار عدن الدولي، مع إطلالات على البحر والمدينة والمطار.</p><button className="text-btn" onClick={()=>jump('contact')}>معلومات الوصول <ArrowLeft size={15}/></button></div></section>
 
    <section className="services section" id="services">
     <div className="section-kicker"><span>02</span><i/><span>الخدمات والتجارب</span></div>
