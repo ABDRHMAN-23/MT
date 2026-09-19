@@ -7,8 +7,8 @@ const hotelImages={
   exterior:'https://panorama-ye.com/wp-content/uploads/2025/02/777777777777777777.jpg',
   lobby:'https://panorama-ye.com/wp-content/uploads/2025/02/DSC04851.jpg',
   room:'https://panorama-ye.com/wp-content/uploads/2025/02/DSC04805.jpg',
-  pool:'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1800&q=88',
-  dining:'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=1800&q=88',
+  pool:'https://panorama-ye.com/wp-content/uploads/2025/07/2.jpg',
+  dining:'https://panorama-ye.com/wp-content/uploads/2025/02/DSC04851.jpg',
   room2:'https://panorama-ye.com/wp-content/uploads/2025/04/DSC05163-600x600.jpg',
   room3:'https://panorama-ye.com/wp-content/uploads/2025/04/DSC05026-1-600x600.jpg',
   jacuzzi:'https://panorama-ye.com/wp-content/uploads/2025/07/2.jpg'
@@ -20,7 +20,7 @@ const rooms=[
  {name:'جناح ملكي خلفي',en:'Royal Rear Suite',tag:'Royal',meta:'إطلالة خلفية · منطقة جلوس',features:['سرير عائلي','منطقة جلوس','واي فاي مجاني','موقف سيارات مجاني'],image:hotelImages.room3},
  {name:'غرفة بحري',en:'Sea View Room',tag:'Sea View',meta:'إطلالة بحرية · منطقة جلوس',features:['سرير عائلي','إطلالة بحرية','منطقة جلوس','تكييف وتلفزيون LED'],image:hotelImages.lobby},
  {name:'غرفة خلفي',en:'Rear Room',tag:'Comfort',meta:'سرير مزدوج أو سريران',features:['واي فاي مجاني','سرير مزدوج أو سريران','تكييف','تلفزيون LED'],image:hotelImages.room},
- {name:'غرفة بحري مع جاكوزي',en:'Sea View Jacuzzi Room',tag:'Jacuzzi',meta:'إطلالة بحرية · جاكوزي خاص',features:['سرير مزدوج','إطلالة بحرية','جاكوزي','مساحة ترفيهية مجانية'],image:hotelImages.pool}
+ {name:'غرفة بحري مع جاكوزي',en:'Sea View Jacuzzi Room',tag:'Jacuzzi',meta:'إطلالة بحرية · جاكوزي خاص',features:['سرير مزدوج','إطلالة بحرية','جاكوزي','مساحة ترفيهية مجانية'],image:hotelImages.jacuzzi}
 ];
 
 const iconMap:any={Utensils,Clock3,Dumbbell,Gamepad2,Store,Car,Wifi,Plane,CircleParking,Star};
@@ -52,7 +52,7 @@ function Logo({dark=false,name='PANORAMA',logoUrl}:{dark?:boolean;name?:string;l
 function BookingModal({close,selectedRoom,whatsapp}:{close:()=>void;selectedRoom?:string;whatsapp:string}){
  const [sent,setSent]=useState(false);
  const [form,setForm]=useState({name:'',phone:'',checkIn:'',checkOut:'',guests:'2',room:selectedRoom||rooms[0].name});
- const submit=async(e:any)=>{e.preventDefault();const {error}=await supabase.from('pano_bookings').insert({guest_name:form.name,phone:form.phone,check_in:form.checkIn,check_out:form.checkOut,guests:Number(String(form.guests).replace('+',''))||2,room_name:form.room});const msg=`مرحباً فندق بانوراما، أرغب في حجز غرفة.\nالاسم: ${form.name}\nالجوال: ${form.phone}\nالوصول: ${form.checkIn}\nالمغادرة: ${form.checkOut}\nالأشخاص: ${form.guests}\nالغرفة: ${form.room}${error?'\\n(تم إرسال الطلب عبر واتساب؛ تعذر حفظ نسخة قاعدة البيانات.)':''}`;window.open('https://wa.me/'+whatsapp.replace(/\D/g,'')+'?text='+encodeURIComponent(msg),'_blank');setSent(true)};
+ const submit=async(e:any)=>{e.preventDefault();if(form.checkOut<=form.checkIn){alert('يرجى اختيار تاريخ مغادرة بعد تاريخ الوصول.');return;}const {error}=await supabase.from('pano_bookings').insert({guest_name:form.name,phone:form.phone,check_in:form.checkIn,check_out:form.checkOut,guests:Number(String(form.guests).replace('+',''))||2,room_name:form.room});const msg=`مرحباً فندق بانوراما، أرغب في حجز غرفة.\nالاسم: ${form.name}\nالجوال: ${form.phone}\nالوصول: ${form.checkIn}\nالمغادرة: ${form.checkOut}\nالأشخاص: ${form.guests}\nالغرفة: ${form.room}${error?'\\n(تم إرسال الطلب عبر واتساب؛ تعذر حفظ نسخة قاعدة البيانات.)':''}`;window.open('https://wa.me/'+whatsapp.replace(/\D/g,'')+'?text='+encodeURIComponent(msg),'_blank');setSent(true)};
  return <div className="modal" onMouseDown={close}><div className="booking-card" onMouseDown={e=>e.stopPropagation()} dir="rtl"><button className="close" onClick={close}><X/></button>{sent?<div className="sent"><div className="sent-icon">✓</div><span className="eyebrow">تم إرسال الطلب</span><h2>نحن بانتظارك في بانوراما.</h2><p>تم فتح واتساب لإرسال تفاصيل الحجز إلى الفندق. سيتواصل معك فريق الحجز لتأكيد التوفر.</p><button className="gold-btn" onClick={close}>إغلاق</button></div>:<><span className="eyebrow">الحجز المباشر</span><h2>ابدأ إقامتك في بانوراما.</h2><p className="modal-lead">أرسل طلب الحجز مباشرة إلى فريق الفندق عبر واتساب.</p><form onSubmit={submit}><div className="form-grid"><label>الاسم الكامل<input required value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/></label><label>رقم الجوال<input required value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></label><label>تاريخ الوصول<input required type="date" value={form.checkIn} onChange={e=>setForm({...form,checkIn:e.target.value})}/></label><label>تاريخ المغادرة<input required type="date" value={form.checkOut} onChange={e=>setForm({...form,checkOut:e.target.value})}/></label><label>عدد الأشخاص<select value={form.guests} onChange={e=>setForm({...form,guests:e.target.value})}><option>1</option><option>2</option><option>3</option><option>4</option><option>5+</option></select></label><label>الغرفة أو الجناح<select value={form.room} onChange={e=>setForm({...form,room:e.target.value})}>{rooms.map(r=><option key={r.name}>{r.name}</option>)}</select></label></div><button className="gold-btn full" type="submit">إرسال طلب الحجز إلى واتساب <ArrowLeft size={17}/></button></form></>}</div></div>
 }
 
