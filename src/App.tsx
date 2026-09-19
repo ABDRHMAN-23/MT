@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useState} from 'react';
+import {createElement,useEffect,useMemo,useState} from 'react';
 import {supabase} from './supabase';
 import {Heart,Check,ArrowLeft,ArrowRight,CalendarDays,ChevronDown,Clock3,Instagram,MapPin,Menu,Phone,Plane,Star,X,Users,Wifi,Car,Utensils,CircleParking,Gamepad2,Dumbbell,Store,AtSign} from 'lucide-react';
 
@@ -98,7 +98,7 @@ export default function App(){
    <section className="services section" id="services">
     <div className="section-kicker"><span>02</span><i/><span>الخدمات والتجارب</span></div>
     <div><div className="section-heading compact"><div><span className="eyebrow">كل ما تحتاجه</span><h2>أكثر من مجرد<br/><em>غرفة.</em></h2></div><p>خدمات الفندق الحالية كما يقدمها بانوراما، مرتبة في تجربة رقمية أوضح وأسهل للضيف.</p></div>
-    <div className="service-grid">{displayServices.map(([title,sub,desc,icon]:any)=><article key={title}><span className="service-icon">{icon}</span><span>{sub}</span><h3>{title}</h3><p>{desc}</p></article>)}</div></div>
+    <div className="service-grid">{displayServices.map(([title,sub,desc,icon]:any)=><article key={title}><span className="service-icon">{typeof icon==='function'?createElement(icon):icon}</span><span>{sub}</span><h3>{title}</h3><p>{desc}</p></article>)}</div></div>
    </section>
 
    <section className="experience">
