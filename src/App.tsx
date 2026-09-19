@@ -10,7 +10,8 @@ const hotelImages={
   pool:'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1800&q=88',
   dining:'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=1800&q=88',
   room2:'https://panorama-ye.com/wp-content/uploads/2025/04/DSC05163-600x600.jpg',
-  room3:'https://panorama-ye.com/wp-content/uploads/2025/04/DSC05026-1-600x600.jpg'
+  room3:'https://panorama-ye.com/wp-content/uploads/2025/04/DSC05026-1-600x600.jpg',
+  jacuzzi:'https://panorama-ye.com/wp-content/uploads/2025/07/2.jpg'
 };
 
 const rooms=[
@@ -58,7 +59,7 @@ function BookingModal({close,selectedRoom,whatsapp}:{close:()=>void;selectedRoom
 export default function App(){
  const [menu,setMenu]=useState(false),[booking,setBooking]=useState(false),[selected,setSelected]=useState<any|null>(null),[lang,setLang]=useState<'ar'|'en'>('ar'),[faq,setFaq]=useState(-1),[heroSlide,setHeroSlide]=useState(0);
  const [remoteRooms,setRemoteRooms]=useState<any[]|null>(null),[remoteServices,setRemoteServices]=useState<any[]|null>(null),[remoteFaqs,setRemoteFaqs]=useState<any[]|null>(null),[remoteGallery,setRemoteGallery]=useState<any[]|null>(null),[remoteOffers,setRemoteOffers]=useState<any[]|null>(null),[remoteSections,setRemoteSections]=useState<any[]|null>(null),[settings,setSettings]=useState<any>(null);
- const heroSlides=[settings?.hero_image_url||hotelImages.exterior,hotelImages.lobby,hotelImages.room2,hotelImages.room3];
+ const heroSlides=[settings?.hero_image_url||hotelImages.exterior,hotelImages.lobby,hotelImages.jacuzzi,hotelImages.room2,hotelImages.room3];
  useEffect(()=>{const timer=window.setInterval(()=>setHeroSlide(v=>(v+1)%heroSlides.length),6500);return()=>window.clearInterval(timer)},[heroSlides.length]);
  useEffect(()=>{let active=true;(async()=>{const [r,s,f,g,o,sec,st]=await Promise.all([supabase.from('pano_rooms').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_services').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_faqs').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_gallery').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_offers').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_sections').select('*').eq('is_published',true).order('sort_order'),supabase.from('pano_site_settings').select('*').eq('id',true).single()]);if(!active)return;if(!r.error&&r.data?.length)setRemoteRooms(r.data);if(!s.error&&s.data?.length)setRemoteServices(s.data);if(!f.error&&f.data?.length)setRemoteFaqs(f.data);if(!g.error&&g.data?.length)setRemoteGallery(g.data);if(!o.error&&o.data?.length)setRemoteOffers(o.data);if(!sec.error&&sec.data?.length)setRemoteSections(sec.data);if(!st.error&&st.data)setSettings(st.data)})();return()=>{active=false}},[]);
  const displayRooms=remoteRooms?.map(r=>({name:r.name_ar,en:r.name_en,tag:r.tag,meta:r.meta_ar,features:r.features_ar||[],image:r.image_url}))||rooms;
