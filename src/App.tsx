@@ -145,8 +145,4 @@ export default function App(){
   {booking&&<BookingModal close={()=>setBooking(false)} selectedRoom={selected?.name} whatsapp={whatsapp}/>}
   {selected&&<div className="modal" onMouseDown={()=>setSelected(null)}><div className="room-modal-pano" onMouseDown={e=>e.stopPropagation()} dir="rtl"><button className="close" onClick={()=>setSelected(null)}><X/></button><img src={selected.image} alt={selected.name}/><div><span className="eyebrow">{selected.en}</span><h2>{selected.name}</h2><p>{selected.meta}</p><ul>{selected.features.map((f: string)=><li key={f}>✓ {f}</li>)}</ul><button className="gold-btn" onClick={()=>{setSelected(null);setBooking(true)}}>احجز هذه الغرفة <ArrowLeft size={16}/></button></div></div></div>}
  </div>
-}  const [menu,setMenu]=useState(false),[booking,setBooking]=useState(false),[selected,setSelected]=useState<any|null>(null),[lang,setLang]=useState<'ar'|'en'>('ar'),[faq,setFaq]=useState(-1),[heroSlide,setHeroSlide]=useState(0);
-  const [remoteRooms,setRemoteRooms]=useState<any[]|null>(null),[remoteServices,setRemoteServices]=useState<any[]|null>(null),[remoteFaqs,setRemoteFaqs]=useState<any[]|null>(null),[remoteGallery,setRemoteGallery]=useState<any[]|null>(null),[remoteOffers,setRemoteOffers]=useState<any[]|null>(null),[remoteSections,setRemoteSections]=useState<any[]|null>(null),[settings,setSettings]=useState<any>(null);
-  const heroSlides=[settings?.hero_image_url||hotelImages.exterior,hotelImages.lobby,hotelImages.room2,hotelImages.room3];
-  useEffect(()=>{const timer=window.setInterval(()=>setHeroSlide(v=>(v+1)%heroSlides.length),6500);return()=>window.clearInterval(timer)},[heroSlides.length]);
-
+}
