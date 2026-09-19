@@ -29,14 +29,22 @@ const services=[
  ['نادي لياقة ومسبح','لياقة · مسبح · كراسي استرخاء','مساحة للاسترخاء والحركة بإطلالة مميزة.',Dumbbell],
  ['صالة ألعاب','بلياردو · بلايستيشن · تنس طاولة','ترفيه متنوع للضيوف والعائلات.',Gamepad2],
  ['متاجر متنوعة','هدايا · عطور · إكسسوارات وجوالات','كل ما تحتاجه أثناء إقامتك في مكان واحد.',Store],
- ['خدمات الضيوف','مطار · سيارات · صرافة · اجتماعات','حلول عملية تجعل الإقامة أسهل وأكثر راحة.',Car]
+ ['خدمات الضيوف','مطار · سيارات · صرافة · اجتماعات','حلول عملية تجعل الإقامة أسهل وأكثر راحة.',Car],
+ ['محل الصرافة وATM','صرافة · مكائن صراف آلي','خدمات مالية عملية داخل الفندق للضيوف.',AtSign],
+ ['صالون الحلاقة','حلاقة وعناية شخصية','خدمة إضافية لراحة الضيوف أثناء الإقامة.',Users],
+ ['متجر الهدايا والعطور','هدايا · عطور · إكسسوارات','متجر متنوع داخل الفندق لاحتياجات الضيوف.',Store],
+ ['متجر الجوالات','إكسسوارات · جوالات','احتياجات الجوال والإكسسوارات أثناء إقامتك.',AtSign],
+ ['خدمة السيارات','تأجير سيارات · سائق','خدمة سيارات للضيوف للمشاوير الخاصة.',Car],
+ ['منتزه وطيرمانات','إطلالة بحرية · استرخاء','مساحات مفتوحة للاستمتاع بالأجواء الساحلية.',Star],
+ ['قاعات الاجتماعات','اجتماعات · تدريب · مناسبات','قاعات متنوعة ومتكاملة للاجتماعات والفعاليات.',CalendarDays],
+ ['خدمة الاستقبال','24 ساعة','فريق استقبال لخدمتك على مدار الساعة.',Clock3]
 ];
 
 const perks=[
  ['99','غرفة وجناح فاخر'],['5','طوابق سكنية'],['24/7','استقبال'],['SEA','إطلالة ساحلية']
 ];
 
-function Logo({dark=false,name='PANORAMA',logoUrl}:{dark?:boolean;name?:string;logoUrl?:string}){return <a className={'brand '+(dark?'brand-dark':'')} href="#top" aria-label={name}><span className="brand-mark">{logoUrl?<img src={logoUrl} alt=""/>:<><b>PH</b><i>★★★★★</i></>}</span><span><strong>{name}</strong><small>HOTEL · ADEN</small></span></a>}
+function Logo({dark=false,name='PANORAMA',logoUrl}:{dark?:boolean;name?:string;logoUrl?:string}){return <a className={'brand '+(dark?'brand-dark':'')} href="#top" aria-label={name}><span className="brand-mark">{logoUrl?<img src={logoUrl} alt={name}/>:<><b>PH</b><i>★★★★★</i></>}</span><span><strong>{name}</strong><small>HOTEL · ADEN</small></span></a>}
 
 function BookingModal({close,selectedRoom,whatsapp}:{close:()=>void;selectedRoom?:string;whatsapp:string}){
  const [sent,setSent]=useState(false);
@@ -52,7 +60,7 @@ export default function App(){
  const displayRooms=remoteRooms?.map(r=>({name:r.name_ar,en:r.name_en,tag:r.tag,meta:r.meta_ar,features:r.features_ar||[],image:r.image_url}))||rooms;
  const displayServices=remoteServices?.map(s=>[s.title_ar,s.subtitle_ar,s.description_ar,s.icon] as any[])||services;
  const displayFaqs=remoteFaqs?.map((f:any)=>({q:f.question_ar,a:f.answer_ar}))||[{q:'ما أوقات تسجيل الوصول والمغادرة؟',a:'تواصل مع فريق الفندق قبل الوصول لتأكيد تفاصيل تسجيل الدخول والمغادرة.'},{q:'هل الإفطار مجاني للنزلاء؟',a:'نعم، الموقع الرسمي يذكر الإفطار المجاني للنزلاء.'},{q:'هل تتوفر خدمة التوصيل من وإلى المطار؟',a:'نعم، تتوفر خدمة التوصيل والاستقبال من وإلى المطار.'},{q:'هل توجد مواقف سيارات؟',a:'نعم، تتوفر مواقف سيارات مجانية للنزلاء.'},{q:'كيف يتم تأكيد الحجز؟',a:'يُرسل طلب الحجز إلى واتساب الفندق ثم يتواصل فريق الحجز لتأكيد التفاصيل والتوفر.'}];
- const nav=useMemo(()=>lang==='ar'?['الرئيسية','الغرف والأجنحة','الخدمات','عن الفندق','تواصل معنا']:['Home','Rooms','Services','About','Contact'],[lang]);
+ const nav=useMemo(()=>lang==='ar'?['الرئيسية','الغرف والأجنحة','الخدمات','الموقع','عن الفندق','تواصل معنا']:['Home','Rooms','Services','Location','About','Contact'],[lang]);
  const jump=(id:string)=>{setMenu(false);document.getElementById(id)?.scrollIntoView({behavior:'smooth'})};
  const gallery=remoteGallery||[]; const offers=remoteOffers||[]; const section=(key:string)=>remoteSections?.find(s=>s.section_key===key); const about=section('about'); const experience=section('experience'); const dining=section('dining'); const finalCta=section('final_cta');
  useEffect(()=>{if(!settings)return;const root=document.documentElement;root.style.setProperty('--gold',settings.primary_color||'#b99761');root.style.setProperty('--green',settings.secondary_color||'#2e3a32');root.style.setProperty('--cream',settings.background_color||'#f5f1e9');root.style.setProperty('--gold2',settings.accent_color||'#d3b77f');document.title=settings.meta_title_ar||settings.hotel_name||'Panorama Hotel Aden'},[settings]);
@@ -64,7 +72,7 @@ export default function App(){
  return <div className="site" dir="rtl" id="top">
   <header className="topbar">
    <Logo name={brandName} logoUrl={settings?.logo_url}/>
-   <nav className={menu?'open':''}><button onClick={()=>jump('top')}>{nav[0]}</button><button onClick={()=>jump('rooms')}>{nav[1]}</button><button onClick={()=>jump('services')}>{nav[2]}</button><button onClick={()=>jump('about')}>{nav[3]}</button><button onClick={()=>jump('contact')}>{nav[4]}</button></nav>
+   <nav className={menu?'open':''}><button onClick={()=>jump('top')}>{nav[0]}</button><button onClick={()=>jump('rooms')}>{nav[1]}</button><button onClick={()=>jump('services')}>{nav[2]}</button><button onClick={()=>jump('location')}>{nav[3]}</button><button onClick={()=>jump('about')}>{nav[4]}</button><button onClick={()=>jump('contact')}>{nav[5]}</button></nav>
    <div className="top-actions"><button className="lang" onClick={()=>setLang(lang==='ar'?'en':'ar')}>{lang==='ar'?'EN':'عربي'}</button><button className="book-mini" onClick={()=>setBooking(true)}>احجز الآن <ArrowLeft size={15}/></button><button className="menu-btn" onClick={()=>setMenu(!menu)}>{menu?<X/>:<Menu/>}</button></div>
   </header>
 
@@ -119,6 +127,8 @@ export default function App(){
    <section className="testimonials section"><span className="eyebrow">شهادات ضيوفنا</span><h2>تجارب من<br/><em>زوار بانوراما.</em></h2><div className="testimonial-grid"><blockquote>“فندق بانوراما عدن حيث طيب الإقامة وروعة المكان، تجربة مميزة في مدينة الجمال عدن.”<small>ماريا قحطان · فنانة</small></blockquote><blockquote>“ضمن زيارتي في عدن قررت الإقامة في فندق بانوراما… فخامة وخدمات متنوعة وغرف وأجنحة خاصة.”<small>شيماء محمد · ممثلة</small></blockquote><blockquote>“من أكبر وأفخم الفنادق والذي يعكس صورة جميلة لكل الزوار من خارج مدينتنا الحبيبة عدن.”<small>فهد بن جعموم · شاعر</small></blockquote></div></section>
 
    <section className="faq section"><div><span className="eyebrow">معلومات مهمة</span><h2>قبل<br/><em>وصولك.</em></h2></div><div>{displayFaqs.map((item:any,i:number)=><div className="faq-row" key={item.q}><button onClick={()=>setFaq(faq===i?-1:i)}>{item.q}<ChevronDown className={faq===i?'up':''}/></button>{faq===i&&<p>{item.a}</p>}</div>)}</div></section>
+
+   <section className="location-section section" id="location"><div className="section-heading"><div><span className="eyebrow">الموقع والوصول</span><h2>بانوراما<br/><em>في قلب عدن.</em></h2></div><p>خورمكسر · ساحل أبين · بجوار مطار عدن الدولي. حرّك الخريطة وقرّبها أو افتح الموقع مباشرة في خرائط Google.</p></div><div className="location-grid"><div className="location-map"><iframe title="Panorama Hotel Aden location" src={settings?.map_url||'https://www.google.com/maps?q=Panorama+Hotel+Aden&output=embed'} loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe></div><div className="location-card"><span className="eyebrow">Panorama Hotel Aden</span><h3>ساحل أبين · خورمكسر</h3><p>بجوار مطار عدن الدولي، مع سهولة الوصول إلى الفندق من المطار والمدينة.</p><div className="location-links"><a href="https://www.google.com/maps/search/?api=1&query=Panorama+Hotel+Aden" target="_blank" rel="noreferrer">فتح في Google Maps <ArrowLeft size={15}/></a><a href={'tel:'+phonePrimary.replace(/\s/g,'')}>الاتصال بالفندق <Phone size={15}/></a></div></div></div></section>
 
    <section className="final-cta"><div><span className="eyebrow">{finalCta?.subtitle_ar||'بانوراما عدن'}</span><h2>{finalCta?.title_ar||'اجعل إقامتك القادمة تبدأ من هنا.'}</h2></div><button className="gold-btn" onClick={()=>setBooking(true)}>احجز الآن <ArrowLeft size={17}/></button></section>
   </main>
